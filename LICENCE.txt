@@ -1,0 +1,24 @@
+LICENSE AGREEMENT
+
+1. Copyright & Ownership
+This software, including its code, structure, and design, is the exclusive property of Adel Gannem. Unauthorized redistribution or modification is strictly prohibited.
+
+2. Permitted Use
+- You are allowed to review, analyze, and read the source code for educational and auditing purposes.
+- You may not modify, distribute, or use the code in any commercial or production environment without explicit written permission from Adel Gannem.
+
+3. Restrictions
+- Reverse engineering or decompilation beyond code review is not permitted.
+- Redistribution, sublicensing, or resale of this software is strictly forbidden.
+- Access to this software is granted only for code review purposes.
+
+4. Security & Compliance
+Any attempt to bypass security features, extract proprietary data, or exploit vulnerabilities will result in legal consequences.
+
+5. License Termination
+Violation of any terms will result in immediate license revocation and possible legal action.
+
+6. Governing Law
+This agreement is governed by the applicable intellectual property and copyright laws of the jurisdiction chosen by Adel Gannem. Any disputes arising from this contract will be resolved through legal arbitration based on the governing law stipulated by Adel Gannem.
+
+By reviewing this software, you agree to the terms outlined above.

@@ -4,10 +4,10 @@ services:
   backend:
     build: .
     ports:
-      - "3005:3005"
+      - "3000:3000"
     volumes:
-      - .:/usr/src/app  # Corregido aquí
-
+      - .:/usr/src/app # Corregido aquí
+    command: go run cmd/main.go -b 0.0.0.
   postgres:
     image: postgres:latest
     container_name: postgres_container
@@ -15,7 +15,8 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: mydatabase
+      POSTGRES_ROOT_PASSWORD: admin@admin
+      POSTGRES_DB: z0
     ports:
       - "5432:5432"
     volumes:
