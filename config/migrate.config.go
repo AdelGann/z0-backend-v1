@@ -13,6 +13,16 @@ func MigrateDB(DB *gorm.DB) {
 
 	modelsToMigrate := []interface{}{
 		&models.User{},
+		&models.Org{},
+		&models.Employees{},
+		&models.Client{},
+		&models.ClientFeedback{},
+		&models.Products{},
+		&models.Metrics{},
+		&models.Debts{},
+		&models.Income{},
+		&models.DebtType{},
+		&models.IncomeType{},
 	}
 
 	if err := DB.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";").Error; err != nil {
