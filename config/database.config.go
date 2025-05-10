@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/AdelGann/z0-backend-v1/models"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -34,23 +33,7 @@ func ConnectDB() {
 
 	DB = db
 
-	MigrateDB()
+	MigrateDB(DB)
 
 	fmt.Println("Database connected and migrated successfully.")
-
-}
-func MigrateDB() {
-	// formatter
-	fmt.Println("===============================================")
-	fmt.Println("Migrating...")
-
-
-	modelsToMigrate := []interface{}{
-		&models.User{},
-		// add more there
-	}
-	DB.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";")
-	DB.AutoMigrate(modelsToMigrate...)
-
-	fmt.Println("Migration completed successfully.")
 }
