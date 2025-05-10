@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/AdelGann/z0-backend-v1/controllers"
+	"github.com/AdelGann/z0-backend-v1/internal/controllers"
 	"github.com/gofiber/fiber/v2"
 )
 
