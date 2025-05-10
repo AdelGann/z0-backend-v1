@@ -1,0 +1,113 @@
+package models
+
+import (
+	"database/sql"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+	"time"
+)
+
+type User struct {
+	ID            uuid.UUID   `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	FullName      string      `gorm:"not null"`
+	UserName      string      `gorm:"not null;unique"`
+	Email         string      `gorm:"not null;unique"`
+	Password      string      `gorm:"not null"`
+	Role          Roles       `gorm:"not null;default:'USER'"`
+	Organizations []Org       `gorm:"foreignKey:FounderID"` // maximum one for standard plan's (coming soon)
+	Employees     []Employees `gorm:"foreignKey:UserID"`
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	DeletedAt     gorm.DeletedAt `gorm:"index"`
+}
+type Org struct {
+	ID        uuid.UUID        `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	FounderID uuid.UUID        `gorm:"type:uuid;not null"`
+	Name      string           `gorm:"not null"`
+	Clients   []Client         `gorm:"foreignKey:OrgID"`
+	Feedbacks []ClientFeedback `gorm:"foreignKey:OrgID"`
+	Products  []Products       `gorm:"foreignKey:OrgID"`
+	Employees []Employees      `gorm:"foreignKey:OrgID"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+}
+type Employees struct {
+	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	OrgID     uuid.UUID `gorm:"type:uuid;not null"`
+	UserID    uuid.UUID `gorm:"type:uuid;not null"`
+	DocNum    string    `gorm:"not null;unique"`
+	FullName  string    `gorm:"not null;unique"`
+	Role      Roles     `gorm:"not null;default:'USER'"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+}
+type Client struct {
+	ID        uuid.UUID        `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	OrgID     uuid.UUID        `gorm:"type:uuid;not null"`
+	DocNum    string           `gorm:"not null;unique"`
+	FullName  string           `gorm:"not null;unique"`
+	Feedbacks []ClientFeedback `gorm:"foreignKey:ClientID"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+}
+
+type ClientFeedback struct {
+	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	ClientID  uuid.UUID `gorm:"type:uuid;not null"`
+	OrgID     uuid.UUID `gorm:"type:uuid;not null"`
+	Rating    int       `gorm:"not null"`
+	Comment   string    `gorm:"not null"`
+	CreatedAt time.Time
+}
+
+type Products struct {
+	ID        uuid.UUID       `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	OrgID     uuid.UUID       `gorm:"type:uuid;not null"`
+	Name      string          `gorm:"not null;" binding:"required"`
+	Quantity  sql.NullInt64   `gorm:"default:null"`
+	Price     sql.NullFloat64 `gorm:"default:null"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+}
+
+type Debts struct {
+	ID          uuid.UUID       `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	DebtType    DebtType        `gorm:"type:varchar(20);not null"`
+	PaymentType PaymentType     `gorm:"type:varchar(20);not null"`
+	MoneyType   Money           `gorm:"type:varchar(20);not null"`
+	Amount      sql.NullFloat64 `gorm:"default:null"`
+	CreatedAt   time.Time
+}
+
+type Income struct {
+	ID          uuid.UUID       `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	IncomeType  IncomeType      `gorm:"type:varchar(20);not null"`
+	PaymentType PaymentType     `gorm:"type:varchar(20);not null"`
+	MoneyType   Money           `gorm:"type:varchar(20);not null"`
+	Amount      sql.NullFloat64 `gorm:"default:null"`
+	CreatedAt   time.Time
+}
+
+type Metrics struct {
+	ID          uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	Month       int       `gorm:"not null"` // (1-12)
+	Year        int       `gorm:"not null"`
+	TotalIncome float64   `gorm:"not null;default:0"`
+	TotalDebts  float64   `gorm:"not null;default:0"`
+	IncomeCount int       `gorm:"not null;default:0"`
+	DebtCount   int       `gorm:"not null;default:0"`
+}
+
+type IncomeType struct {
+	ID   uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	Name string    `gorm:"type:varchar(50);unique;not null"`
+}
+
+type DebtType struct {
+	ID   uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	Name string    `gorm:"type:varchar(50);unique;not null"`
+}
