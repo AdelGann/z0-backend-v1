@@ -28,10 +28,14 @@ type Org struct {
 	Feedbacks []ClientFeedback `gorm:"foreignKey:OrgID"`
 	Products  []Products       `gorm:"foreignKey:OrgID"`
 	Employees []Employees      `gorm:"foreignKey:OrgID"`
+	Metrics   Metrics          `gorm:"foreignKey:OrgID;constraint:OnDelete:CASCADE"`
+	Incomes   []Income         `gorm:"foreignKey:OrgID"`
+	Debts     []Debts          `gorm:"foreignKey:OrgID"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
+
 type Employees struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	OrgID     uuid.UUID `gorm:"type:uuid;not null"`
@@ -76,7 +80,9 @@ type Products struct {
 
 type Debts struct {
 	ID          uuid.UUID       `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	DebtType    DebtType        `gorm:"type:varchar(20);not null"`
+	OrgID       uuid.UUID       `gorm:"type:uuid;not null"`
+	DebtTypeID  uuid.UUID       `gorm:"type:uuid;not null;unique"`
+	DebtType    DebtType        `gorm:"foreignKey:DebtTypeID;constraint:OnDelete:CASCADE"`
 	PaymentType PaymentType     `gorm:"type:varchar(20);not null"`
 	MoneyType   Money           `gorm:"type:varchar(20);not null"`
 	Amount      sql.NullFloat64 `gorm:"default:null"`
@@ -84,17 +90,20 @@ type Debts struct {
 }
 
 type Income struct {
-	ID          uuid.UUID       `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	IncomeType  IncomeType      `gorm:"type:varchar(20);not null"`
-	PaymentType PaymentType     `gorm:"type:varchar(20);not null"`
-	MoneyType   Money           `gorm:"type:varchar(20);not null"`
-	Amount      sql.NullFloat64 `gorm:"default:null"`
-	CreatedAt   time.Time
+	ID           uuid.UUID       `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	OrgID        uuid.UUID       `gorm:"type:uuid;not null"`
+	IncomeTypeID uuid.UUID       `gorm:"type:uuid;not null;unique"`
+	IncomeType   IncomeType      `gorm:"foreignKey:IncomeTypeID;constraint:OnDelete:CASCADE"`
+	PaymentType  PaymentType     `gorm:"type:varchar(20);not null"`
+	MoneyType    Money           `gorm:"type:varchar(20);not null"`
+	Amount       sql.NullFloat64 `gorm:"default:null"`
+	CreatedAt    time.Time
 }
 
 type Metrics struct {
 	ID          uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	Month       int       `gorm:"not null"` // (1-12)
+	OrgID       uuid.UUID `gorm:"type:uuid;not null;unique"`
+	Month       int       `gorm:"not null"`
 	Year        int       `gorm:"not null"`
 	TotalIncome float64   `gorm:"not null;default:0"`
 	TotalDebts  float64   `gorm:"not null;default:0"`
