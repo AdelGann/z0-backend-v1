@@ -2,6 +2,8 @@ package userservices
 
 import (
 	"errors"
+	"fmt"
+
 	"github.com/AdelGann/z0-backend-v1/Internal/inputs/OrgInputs"
 	"github.com/AdelGann/z0-backend-v1/Internal/inputs/UsersInput"
 	"github.com/AdelGann/z0-backend-v1/Internal/services/OrgServices"
@@ -9,7 +11,6 @@ import (
 	"github.com/AdelGann/z0-backend-v1/models"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-	"reflect"
 )
 
 func UserToDto() {}
@@ -35,34 +36,30 @@ func GetUserByUserName(username *string) (models.User, error) {
 	result := config.DB.Where("user_name = ?", userName).Find(&user)
 	return user, result.Error
 }
-func SaveUser(user userinputs.CreateUserInput) (models.User, error) {
-	passwordHashed, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 
+func SaveUser(user userinputs.CreateUserInput) (models.User, error) {
+
+	if user.FullName == "" || user.UserName == "" || user.Email == "" || user.Password == "" {
+		return models.User{}, errors.New("all fields are required")
+	}
+
+	ExistingEmail, _ := GetUserByEmail(&user.Email)
+	ExistingUserName, _ := GetUserByUserName(&user.UserName)
+
+	if ExistingUserName.ID == uuid.Nil {
+		return models.User{}, errors.New("UserName already registered: " + ExistingUserName.UserName)
+	}
+
+	if ExistingEmail.ID == uuid.Nil {
+		return models.User{}, errors.New("Email already registered: " + ExistingEmail.Email)
+	}
+
+	passwordHashed, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return models.User{}, err
 	}
 
-	Values := reflect.ValueOf(user)
-
-	ExistingEmail, _ := GetUserByEmail(&user.Email)          // for validate if email exists before the db throws an error
-	ExistingUserName, _ := GetUserByUserName(&user.UserName) // for validate if username exists before the db throws an error
-
-	if len(ExistingUserName.ID) > 0 {
-		return models.User{}, errors.New("UserName already registered: " + ExistingUserName.UserName)
-	}
-
-	if len(ExistingEmail.ID) > 0 {
-		return models.User{}, errors.New("Email already registered: " + ExistingEmail.Email)
-	}
-
-	for i := 0; i < Values.NumField(); i++ {
-		fieldValue := Values.Field(i).String()
-
-		if len(fieldValue) == 0 {
-			return models.User{}, errors.New("Field " + Values.Type().Field(i).Name + " cannot be null")
-		}
-
-	}
+	// Crear usuario
 	newUser := models.User{
 		ID:       uuid.New(),
 		FullName: user.FullName,
@@ -75,8 +72,9 @@ func SaveUser(user userinputs.CreateUserInput) (models.User, error) {
 		return models.User{}, err
 	}
 
+	// Crear organización
 	newOrg := orginputs.CreateOrgInput{
-		Name: newUser.UserName + "'s Organization",
+		Name: fmt.Sprintf("%s's Organization", newUser.UserName),
 	}
 
 	_, err = orgservices.SaveOrg(newOrg, newUser.ID)
