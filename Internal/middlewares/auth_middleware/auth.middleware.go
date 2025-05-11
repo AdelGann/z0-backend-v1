@@ -1,10 +1,11 @@
 package authmiddleware
 
 import (
-	"errors"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/AdelGann/z0-backend-v1/Pkg/utils/helpers"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
@@ -42,48 +43,13 @@ func ValidateToken(c *fiber.Ctx) error {
 	return c.Next()
 }
 
-func ExtractClaims(c *fiber.Ctx) (map[string]interface{}, error) {
-	tokenString := c.Get("Authorization")
-	if tokenString == "" {
-		return nil, errors.New(fiber.ErrUnauthorized.Message)
-	}
-
-	parts := strings.Split(tokenString, " ")
-	if len(parts) != 2 || parts[0] != "Bearer" {
-		return nil, errors.New(fiber.ErrUnauthorized.Message)
-	}
-
-	token, err := jwt.Parse(parts[1], func(token *jwt.Token) (interface{}, error) {
-		return []byte(SecretKey), nil
-	})
-
-	if err != nil || !token.Valid {
-		return nil, errors.New(fiber.ErrUnauthorized.Message)
-	}
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-		return claims, nil
-	}
-
-	return nil, errors.New(fiber.ErrUnauthorized.Message)
-}
-
-func ValidateRole(c *fiber.Ctx, allowedRoles []string) bool {
-	claims, err := ExtractClaims(c)
-	if err != nil {
-		return false
-	}
-
-	role, ok := claims["role"].(string)
-	if !ok {
-		return false
-	}
-
-	for _, allowedRole := range allowedRoles {
-		if role == allowedRole {
-			return true
+func RoleMiddleware(allowedRoles []string) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		if !helpers.ValidateRole(c, allowedRoles) {
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+				"error": "Access denied",
+			})
 		}
+		return c.Next()
 	}
-
-	return false
 }

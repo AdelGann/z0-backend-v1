@@ -8,7 +8,7 @@ import (
 	"github.com/AdelGann/z0-backend-v1/internal/inputs/auth_inputs"
 	"github.com/AdelGann/z0-backend-v1/internal/inputs/users_inputs"
 	"github.com/AdelGann/z0-backend-v1/internal/services/users_service"
-	"github.com/AdelGann/z0-backend-v1/Pkg/Jwt/Gen"
+	"github.com/AdelGann/z0-backend-v1/pkg/jwt/gen"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
