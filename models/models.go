@@ -12,7 +12,7 @@ type User struct {
 	FullName      string      `gorm:"not null"`
 	UserName      string      `gorm:"not null;unique"`
 	Email         string      `gorm:"not null;unique"`
-	Password      string      `gorm:"not null"`
+	Password      string      `gorm:"not null" json:"-"`
 	Role          Roles       `gorm:"not null;default:'USER'"`
 	Organizations []Org       `gorm:"foreignKey:FounderID"` // maximum one for standard plan's (coming soon)
 	Employees     []Employees `gorm:"foreignKey:UserID"`

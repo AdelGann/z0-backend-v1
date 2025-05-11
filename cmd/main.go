@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/AdelGann/z0-backend-v1/Internal/routes"
 	"github.com/AdelGann/z0-backend-v1/config"
-	"github.com/AdelGann/z0-backend-v1/routes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 )
@@ -15,7 +15,7 @@ func main() {
 	app := fiber.New()
 
 	// user routes
-	routes.UserRoutes(app)
+	routes.MainRoutes(app)
 
 	log.Fatal(app.Listen(":3000"))
 }
