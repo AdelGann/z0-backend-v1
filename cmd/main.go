@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/AdelGann/z0-backend-v1/Internal/routes"
+	"github.com/AdelGann/z0-backend-v1/internal/routes"
 	"github.com/AdelGann/z0-backend-v1/config"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"

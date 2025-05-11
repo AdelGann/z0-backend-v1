@@ -3,7 +3,7 @@ package orgservices
 import (
 	"errors"
 
-	"github.com/AdelGann/z0-backend-v1/Internal/inputs/OrgInputs"
+	"github.com/AdelGann/z0-backend-v1/internal/inputs/org_inputs"
 	"github.com/AdelGann/z0-backend-v1/config"
 	"github.com/AdelGann/z0-backend-v1/models"
 	"github.com/google/uuid"

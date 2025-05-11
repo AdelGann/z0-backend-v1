@@ -3,8 +3,8 @@ package usercontroller
 import (
 	"fmt"
 
-	"github.com/AdelGann/z0-backend-v1/Internal/inputs/UsersInput"
-	"github.com/AdelGann/z0-backend-v1/Internal/services/UserService"
+	"github.com/AdelGann/z0-backend-v1/internal/inputs/users_inputs"
+	"github.com/AdelGann/z0-backend-v1/internal/services/users_service"
 	"github.com/gofiber/fiber/v2"
 )
 

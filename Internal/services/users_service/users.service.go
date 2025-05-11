@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/AdelGann/z0-backend-v1/Internal/inputs/OrgInputs"
-	"github.com/AdelGann/z0-backend-v1/Internal/inputs/UsersInput"
-	"github.com/AdelGann/z0-backend-v1/Internal/services/OrgServices"
+	"github.com/AdelGann/z0-backend-v1/internal/inputs/org_inputs"
+	"github.com/AdelGann/z0-backend-v1/internal/inputs/users_inputs"
+	"github.com/AdelGann/z0-backend-v1/internal/services/org_service"
 	"github.com/AdelGann/z0-backend-v1/config"
 	"github.com/AdelGann/z0-backend-v1/models"
 	"github.com/google/uuid"
@@ -38,7 +38,6 @@ func GetUserByUserName(username *string) (models.User, error) {
 }
 
 func SaveUser(user userinputs.CreateUserInput) (models.User, error) {
-
 	if user.FullName == "" || user.UserName == "" || user.Email == "" || user.Password == "" {
 		return models.User{}, errors.New("all fields are required")
 	}
@@ -46,19 +45,17 @@ func SaveUser(user userinputs.CreateUserInput) (models.User, error) {
 	ExistingEmail, _ := GetUserByEmail(&user.Email)
 	ExistingUserName, _ := GetUserByUserName(&user.UserName)
 
-	if ExistingUserName.ID == uuid.Nil {
+	if ExistingUserName.ID != uuid.Nil {
 		return models.User{}, errors.New("UserName already registered: " + ExistingUserName.UserName)
 	}
 
-	if ExistingEmail.ID == uuid.Nil {
+	if ExistingEmail.ID != uuid.Nil {
 		return models.User{}, errors.New("Email already registered: " + ExistingEmail.Email)
 	}
-
 	passwordHashed, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return models.User{}, err
 	}
-
 	// Crear usuario
 	newUser := models.User{
 		ID:       uuid.New(),
