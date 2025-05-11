@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/AdelGann/z0-backend-v1/Pkg/utils/helpers"
+	"github.com/AdelGann/z0-backend-v1/pkg/utils/helpers"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
