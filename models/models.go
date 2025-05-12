@@ -39,6 +39,7 @@ type Order struct {
 	ID          uuid.UUID       `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	OrgID       uuid.UUID       `gorm:"type:uuid;not null"`
 	ClientID    uuid.UUID       `gorm:"type:uuid;not null"`
+	Org         Org             `gorm:"foreignKey:OrgID;constraint:OnDelete:CASCADE"`
 	Client      Client          `gorm:"foreignKey:ClientID;constraint:OnDelete:CASCADE"`
 	Products    []Product       `gorm:"foreignKey:OrderID"`
 	TotalAmount sql.NullFloat64 `gorm:"default:null"`
