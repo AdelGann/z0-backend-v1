@@ -8,14 +8,14 @@ import (
 )
 
 type User struct {
-	ID            uuid.UUID   `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	FullName      string      `gorm:"not null"`
-	UserName      string      `gorm:"not null;unique"`
-	Email         string      `gorm:"not null;unique"`
-	Password      string      `gorm:"not null" json:"-"`
-	Role          Roles       `gorm:"not null;default:'USER'"`
-	Organizations []Org       `gorm:"foreignKey:FounderID"` // maximum one for standard plan's (coming soon)
-	Employees     []Employees `gorm:"foreignKey:UserID"`
+	ID            uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	FullName      string     `gorm:"not null"`
+	UserName      string     `gorm:"not null;unique"`
+	Email         string     `gorm:"not null;unique"`
+	Password      string     `gorm:"not null" json:"-"`
+	Role          Roles      `gorm:"not null;default:'USER'"`
+	Organizations []Org      `gorm:"foreignKey:FounderID"` // maximum one for standard plan's (coming soon)
+	Employees     []Employee `gorm:"foreignKey:UserID"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	DeletedAt     gorm.DeletedAt `gorm:"index"`
@@ -26,17 +26,29 @@ type Org struct {
 	Name      string           `gorm:"not null"`
 	Clients   []Client         `gorm:"foreignKey:OrgID"`
 	Feedbacks []ClientFeedback `gorm:"foreignKey:OrgID"`
-	Products  []Products       `gorm:"foreignKey:OrgID"`
-	Employees []Employees      `gorm:"foreignKey:OrgID"`
-	Metrics   Metrics          `gorm:"foreignKey:OrgID;constraint:OnDelete:CASCADE"`
+	Products  []Product        `gorm:"foreignKey:OrgID"`
+	Employees []Employee       `gorm:"foreignKey:OrgID"`
+	Metrics   Metric           `gorm:"foreignKey:OrgID;constraint:OnDelete:CASCADE"`
 	Incomes   []Income         `gorm:"foreignKey:OrgID"`
-	Debts     []Debts          `gorm:"foreignKey:OrgID"`
+	Debts     []Debt           `gorm:"foreignKey:OrgID"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
-
-type Employees struct {
+type Order struct {
+	ID          uuid.UUID       `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	OrgID       uuid.UUID       `gorm:"type:uuid;not null"`
+	ClientID    uuid.UUID       `gorm:"type:uuid;not null"`
+	Client      Client          `gorm:"foreignKey:ClientID;constraint:OnDelete:CASCADE"`
+	Products    []Product       `gorm:"foreignKey:OrderID"`
+	TotalAmount sql.NullFloat64 `gorm:"default:null"`
+	PaymentType PaymentType     `gorm:"type:varchar(20);not null"`
+	MoneyType   Money           `gorm:"type:varchar(20);not null"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   gorm.DeletedAt `gorm:"index"`
+}
+type Employee struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	OrgID     uuid.UUID `gorm:"type:uuid;not null"`
 	UserID    uuid.UUID `gorm:"type:uuid;not null"`
@@ -67,8 +79,9 @@ type ClientFeedback struct {
 	CreatedAt time.Time
 }
 
-type Products struct {
+type Product struct {
 	ID        uuid.UUID       `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	OrderID   uuid.UUID       `gorm:"type:uuid;not null"`
 	OrgID     uuid.UUID       `gorm:"type:uuid;not null"`
 	Name      string          `gorm:"not null;" binding:"required"`
 	Quantity  sql.NullInt64   `gorm:"default:null"`
@@ -78,7 +91,7 @@ type Products struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-type Debts struct {
+type Debt struct {
 	ID          uuid.UUID       `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	OrgID       uuid.UUID       `gorm:"type:uuid;not null"`
 	DebtTypeID  uuid.UUID       `gorm:"type:uuid;not null;unique"`
@@ -100,7 +113,7 @@ type Income struct {
 	CreatedAt    time.Time
 }
 
-type Metrics struct {
+type Metric struct {
 	ID          uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	OrgID       uuid.UUID `gorm:"type:uuid;not null;unique"`
 	Month       int       `gorm:"not null"`
