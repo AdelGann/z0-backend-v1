@@ -8,33 +8,46 @@ import (
 )
 
 type User struct {
-	ID            uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	FullName      string     `gorm:"not null"`
-	UserName      string     `gorm:"not null;unique"`
-	Email         string     `gorm:"not null;unique"`
-	Password      string     `gorm:"not null" json:"-"`
-	Role          Roles      `gorm:"not null;default:'USER'"`
-	Organizations []Org      `gorm:"foreignKey:FounderID"` // maximum one for standard plan's (coming soon)
-	Employees     []Employee `gorm:"foreignKey:UserID"`
+	ID            uuid.UUID       `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	FullName      string          `gorm:"not null"`
+	UserName      string          `gorm:"not null;unique"`
+	Email         string          `gorm:"not null;unique"`
+	Password      string          `gorm:"not null" json:"-"`
+	Role          Roles           `gorm:"not null;default:'USER'"`
+	Organizations []Org           `gorm:"foreignKey:FounderID"` // maximum one for standard plan's (coming soon)
+	Employees     []Employee      `gorm:"foreignKey:UserID"`
+	Invitations   []OrgInvitation `gorm:"foreignKey:UserID"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	DeletedAt     gorm.DeletedAt `gorm:"index"`
 }
 type Org struct {
-	ID        uuid.UUID        `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	FounderID uuid.UUID        `gorm:"type:uuid;not null"`
-	Name      string           `gorm:"not null"`
-	Clients   []Client         `gorm:"foreignKey:OrgID"`
-	Feedbacks []ClientFeedback `gorm:"foreignKey:OrgID"`
-	Products  []Product        `gorm:"foreignKey:OrgID"`
-	Employees []Employee       `gorm:"foreignKey:OrgID"`
-	Metrics   Metric           `gorm:"foreignKey:OrgID;constraint:OnDelete:CASCADE"`
-	Incomes   []Income         `gorm:"foreignKey:OrgID"`
-	Debts     []Debt           `gorm:"foreignKey:OrgID"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	ID          uuid.UUID        `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	FounderID   uuid.UUID        `gorm:"type:uuid;not null"`
+	Name        string           `gorm:"not null"`
+	Clients     []Client         `gorm:"foreignKey:OrgID"`
+	Invitations []OrgInvitation  `gorm:"foreignKey:OrgID"`
+	Feedbacks   []ClientFeedback `gorm:"foreignKey:OrgID"`
+	Products    []Product        `gorm:"foreignKey:OrgID"`
+	Employees   []Employee       `gorm:"foreignKey:OrgID"`
+	Metrics     Metric           `gorm:"foreignKey:OrgID;constraint:OnDelete:CASCADE"`
+	Incomes     []Income         `gorm:"foreignKey:OrgID"`
+	Debts       []Debt           `gorm:"foreignKey:OrgID"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   gorm.DeletedAt `gorm:"index"`
 }
+type OrgInvitation struct {
+	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	UserID    uuid.UUID `gorm:"index;type:uuid;not null"`
+	OrgID     uuid.UUID `gorm:"index;type:uuid;not null"`
+	User      User      `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"` // user invitated
+	Org       Org       `gorm:"foreignKey:OrgID;constraint:OnDelete:CASCADE"`
+	Code      string    `gorm:"not null"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+}
+
 type Order struct {
 	ID          uuid.UUID       `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	OrgID       uuid.UUID       `gorm:"type:uuid;not null"`
