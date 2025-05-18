@@ -1,7 +1,12 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "Documentación de ejemplo con Fiber y swaggo",
+        "title": "z0-api",
+        "contact": {},
+        "version": "1.0"
     },
+    "host": "localhost:3000",
+    "basePath": "/",
     "paths": {}
 }
