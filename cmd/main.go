@@ -1,12 +1,11 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/AdelGann/z0-backend-v1/config"
 	"github.com/AdelGann/z0-backend-v1/internal/routes"
 	"github.com/gofiber/fiber/v2"
-	fiberlog "github.com/gofiber/fiber/v2/log"
+	"github.com/gofiber/fiber/v2/log"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 func main() {
@@ -16,21 +15,10 @@ func main() {
 	// initialize app
 	app := fiber.New()
 
-	// middleware to prevent panic errors
-	app.Use(func(c *fiber.Ctx) (err error) {
-		defer func() {
-			if r := recover(); r != nil {
-				fmt.Printf("Recovered from panic: %v", r)
-				err = c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-					"error": r,
-				})
-			}
-		}()
-		return c.Next()
-	})
+	app.Use(recover.New())
 
 	// user routes
 	routes.MainRoutes(app)
 
-	fiberlog.Fatal(app.Listen(":3000"))
+	log.Fatal(app.Listen(":3000"))
 }
