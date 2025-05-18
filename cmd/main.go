@@ -1,11 +1,12 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/AdelGann/z0-backend-v1/config"
 	"github.com/AdelGann/z0-backend-v1/internal/routes"
 	"github.com/gofiber/fiber/v2"
 	fiberlog "github.com/gofiber/fiber/v2/log"
-	stdlog "log"
 )
 
 func main() {
@@ -19,7 +20,7 @@ func main() {
 	app.Use(func(c *fiber.Ctx) (err error) {
 		defer func() {
 			if r := recover(); r != nil {
-				stdlog.Printf("Recovered from panic: %v", r)
+				fmt.Printf("Recovered from panic: %v", r)
 				err = c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 					"error": r,
 				})
