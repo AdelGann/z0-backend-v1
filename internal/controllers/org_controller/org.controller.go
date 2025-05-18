@@ -5,7 +5,7 @@ import (
 
 	"github.com/AdelGann/z0-backend-v1/internal/inputs/org_inputs"
 	"github.com/AdelGann/z0-backend-v1/internal/services/org_service"
-	"github.com/AdelGann/z0-backend-v1/pkg/utils/helpers"
+	"github.com/AdelGann/z0-backend-v1/pkg/utils/helpers/validations"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
@@ -15,7 +15,7 @@ func SaveOrg() {
 }
 func Invite(c *fiber.Ctx) error {
 	invitation := new(orginputs.InviteOrgInput)
-	claims, err := helpers.ExtractClaims(c)
+	claims, err := validations.ExtractClaims(c)
 
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": err.Error()})

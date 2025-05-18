@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/AdelGann/z0-backend-v1/pkg/utils/helpers"
+	"github.com/AdelGann/z0-backend-v1/pkg/utils/helpers/validations"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
@@ -45,7 +45,7 @@ func ValidateToken(c *fiber.Ctx) error {
 
 func RoleMiddleware(allowedRoles []string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		if !helpers.ValidateRole(c, allowedRoles) {
+		if !validations.ValidateRole(c, allowedRoles) {
 			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 				"error": "Access denied",
 			})

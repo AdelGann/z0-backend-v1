@@ -1,15 +1,13 @@
 package orgservices
 
 import (
-	"crypto/rand"
 	"errors"
-	"fmt"
 	"github.com/AdelGann/z0-backend-v1/config"
 	"github.com/AdelGann/z0-backend-v1/internal/inputs/org_inputs"
 	"github.com/AdelGann/z0-backend-v1/models"
+	"github.com/AdelGann/z0-backend-v1/pkg/utils/helpers/gen"
 	"github.com/AdelGann/z0-backend-v1/pkg/utils/mail"
 	"github.com/google/uuid"
-	"math/big"
 )
 
 func SaveOrg(org orginputs.CreateOrgInput, founderID uuid.UUID) (models.Org, error) {
@@ -59,18 +57,10 @@ func SendInvitation(OrgID uuid.UUID, UserEmail string, founderID uuid.UUID) (str
 		return "", errors.New(res.Error.Error())
 	}
 
-	length := 6
-	code := make([]byte, length)
-	for i := range code {
-		var num *big.Int
-		for {
-			num, _ = rand.Int(rand.Reader, big.NewInt(127))
-			if (num.Int64() >= 48 && num.Int64() <= 57) ||
-				(num.Int64() >= 65 && num.Int64() <= 90) {
-				break
-			}
-		}
-		code[i] = byte(num.Int64())
+	code, err := gen.GenerateCode(6)
+
+	if err != nil {
+		return "", errors.New(err.Error())
 	}
 
 	sendInv := models.OrgInvitation{
@@ -97,8 +87,6 @@ func SendInvitation(OrgID uuid.UUID, UserEmail string, founderID uuid.UUID) (str
 
 	var addresses []string
 	addresses = append(addresses, UserEmail)
-	fmt.Print(addresses)
-
 	mail.SendEmailSSL(msg, addresses)
 
 	return string(code), nil
