@@ -7,6 +7,7 @@ services:
       - "3000:3000"
     volumes:
       - .:/usr/src/app # Corregido aquí
+    restart: unless-stopped
     command: go run cmd/main.go -b 0.0.0.
   postgres:
     image: postgres:latest
