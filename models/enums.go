@@ -24,3 +24,11 @@ const (
 	ADMIN Roles = "ADMIN"
 	USER  Roles = "USER"
 )
+
+type InvitationState string
+
+const (
+	PENDING  InvitationState = "PENDING"
+	CANCELED InvitationState = "CANCELED"
+	ACCEPTED InvitationState = "ACCEPTED"
+)

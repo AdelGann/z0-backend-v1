@@ -2,11 +2,11 @@ package mail
 
 import (
 	"crypto/tls"
+	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"net/smtp"
 	"os"
-
-	"github.com/joho/godotenv"
 )
 
 var Env map[string]string
@@ -34,151 +34,131 @@ func LoadEnv() {
 
 // Configure SMTP authentication
 func Builder() {
+	LoadEnv()
 	Auth = smtp.PlainAuth("", Env["SMTP_MAIL"], Env["SMTP_PASS"], Env["SMTP_SERVER"])
 }
 
-func SendEmailTLS(msg []byte, to []string) {
+func SendEmailTLS(msg []byte, to []string) error {
 	smtpServer := Env["SMTP_SERVER"] + ":" + Env["SMTP_TLS_PORT"]
 
-	// Connect to SMTP server
 	conn, err := smtp.Dial(smtpServer)
 	if err != nil {
-		log.Fatalf("Error connecting to SMTP server: %v", err)
+		return err
 	}
 	defer conn.Close()
 
-	// EHLO greeting
 	if err = conn.Hello(Env["SMTP_SERVER"]); err != nil {
-		log.Fatalf("Error during EHLO: %v", err)
+		return err
 	}
 
-	// Start TLS
 	if ok, _ := conn.Extension("STARTTLS"); ok {
 		if err = conn.StartTLS(&tls.Config{ServerName: Env["SMTP_SERVER"]}); err != nil {
-			log.Fatalf("Error during STARTTLS: %v", err)
+			return err
 		}
 	} else {
-		log.Fatal("Server does not support STARTTLS")
+		return fmt.Errorf("server does not support STARTTLS")
 	}
 
-	// SMTP authentication
-	Auth := smtp.PlainAuth("", Env["SMTP_MAIL"], Env["SMTP_PASS"], Env["SMTP_SERVER"])
-	if err = conn.Auth(Auth); err != nil {
-		log.Fatalf("SMTP authentication error: %v", err)
+	auth := smtp.PlainAuth("", Env["SMTP_MAIL"], Env["SMTP_PASS"], Env["SMTP_SERVER"])
+	if err = conn.Auth(auth); err != nil {
+		return err
 	}
 
-	// Set sender
 	if err = conn.Mail(Env["SMTP_MAIL"]); err != nil {
-		log.Fatalf("Error setting sender: %v", err)
+		return err
 	}
 
-	// Check that there is at least one recipient
 	if len(to) == 0 {
-		log.Fatal("No recipients to send the email")
+		return fmt.Errorf("no recipients to send the email")
 	}
 
-	// Set recipients
 	for _, recipient := range to {
 		if err = conn.Rcpt(recipient); err != nil {
-			log.Fatalf("Error with recipient %s: %v", recipient, err)
+			return fmt.Errorf("error with recipient %s: %v", recipient, err)
 		}
 	}
 
-	// Get writer to send data
 	w, err := conn.Data()
 	if err != nil {
-		log.Fatalf("Error starting data send: %v", err)
+		return err
 	}
 
-	// Write message
 	_, err = w.Write(msg)
 	if err != nil {
-		log.Fatalf("Error writing message: %v", err)
+		return err
 	}
 
-	// Close writer to finalize DATA
 	err = w.Close()
 	if err != nil {
-		log.Fatalf("Error closing data writer: %v", err)
+		return err
 	}
 
-	// Properly close SMTP connection
 	err = conn.Quit()
 	if err != nil {
-		log.Fatalf("Error closing SMTP connection: %v", err)
+		return err
 	}
 
 	log.Println("Email sent successfully using STARTTLS on port 587!")
+	return nil
 }
 
-// Send email using SSL on port 465
-func SendEmailSSL(msg []byte, to []string) {
+func SendEmailSSL(msg []byte, to []string) error {
 	smtpServer := Env["SMTP_SERVER"] + ":" + Env["SMTP_SSL_PORT"]
 
-	// Configure TLS with SMTP server
 	tlsConfig := &tls.Config{
 		ServerName: Env["SMTP_SERVER"],
 	}
 
-	// Establish secure TLS connection
 	conn, err := tls.Dial("tcp", smtpServer, tlsConfig)
 	if err != nil {
-		log.Fatalf("Error establishing SSL connection: %v", err)
+		return err
 	}
 	defer conn.Close()
 
-	// Create SMTP client over TLS connection
 	client, err := smtp.NewClient(conn, Env["SMTP_SERVER"])
 	if err != nil {
-		log.Fatalf("Error creating SMTP client: %v", err)
+		return err
 	}
-	defer client.Quit() // Close SMTP session at the end
+	defer client.Quit()
 
-	// SMTP authentication
 	auth := smtp.PlainAuth("", Env["SMTP_MAIL"], Env["SMTP_PASS"], Env["SMTP_SERVER"])
 	if err = client.Auth(auth); err != nil {
-		log.Fatalf("SMTP authentication error: %v", err)
+		return err
 	}
 
-	// Set sender
 	if err = client.Mail(Env["SMTP_MAIL"]); err != nil {
-		log.Fatalf("Error setting sender: %v", err)
+		return err
 	}
 
-	// Validate recipients exist
 	if len(to) == 0 {
-		log.Fatal("No recipients to send the email")
+		return fmt.Errorf("no recipients to send the email")
 	}
 
-	// Set recipients
 	for _, recipient := range to {
 		if err = client.Rcpt(recipient); err != nil {
-			log.Fatalf("Error with recipient %s: %v", recipient, err)
+			return fmt.Errorf("error with recipient %s: %v", recipient, err)
 		}
 	}
 
-	// Get writer to send message body
 	w, err := client.Data()
 	if err != nil {
-		log.Fatalf("Error starting data send: %v", err)
+		return err
 	}
 
-	// Write message
 	_, err = w.Write(msg)
 	if err != nil {
-		log.Fatalf("Error writing message: %v", err)
+		return err
 	}
 
-	// Close writer to finalize DATA
 	err = w.Close()
 	if err != nil {
-		log.Fatalf("Error closing data writer: %v", err)
+		return err
 	}
 
-	// Properly close SMTP session
 	if err = client.Quit(); err != nil {
-		log.Fatalf("Error closing SMTP connection: %v", err)
+		return err
 	}
 
 	log.Println("Email sent successfully using SSL on port 465!")
+	return nil
 }

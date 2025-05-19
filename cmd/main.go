@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 
-	_ "github.com/AdelGann/z0-backend-v1/cmd/docs"
 	"github.com/AdelGann/z0-backend-v1/config"
 	"github.com/AdelGann/z0-backend-v1/internal/routes"
 	"github.com/gofiber/fiber/v2"
@@ -13,11 +12,6 @@ import (
 	"github.com/gofiber/swagger"
 )
 
-// @title z0-api
-// @version 1.0
-// @description Documentación de ejemplo con Fiber y swaggo
-// @host localhost:3000
-// @BasePath /
 func main() {
 	// connection to the database
 	config.ConnectDB()

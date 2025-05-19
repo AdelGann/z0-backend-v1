@@ -38,14 +38,15 @@ type Org struct {
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
 }
 type OrgInvitation struct {
-	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	UserID    uuid.UUID `gorm:"index;type:uuid;not null"`
-	OrgID     uuid.UUID `gorm:"index;type:uuid;not null"`
-	User      User      `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"` // user invitated
-	Org       Org       `gorm:"foreignKey:OrgID;constraint:OnDelete:CASCADE"`
-	Code      string    `gorm:"not null"`
-	CreatedAt time.Time `gorm:"autoCreateTime"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime"`
+	ID        uuid.UUID       `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	UserID    uuid.UUID       `gorm:"index;type:uuid;not null"`
+	OrgID     uuid.UUID       `gorm:"index;type:uuid;not null"`
+	User      User            `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"` // user invitated
+	Org       Org             `gorm:"foreignKey:OrgID;constraint:OnDelete:CASCADE"`
+	Code      string          `gorm:"not null"`
+	State     InvitationState `gorm:"default:'PENDING'"`
+	CreatedAt time.Time       `gorm:"autoCreateTime"`
+	UpdatedAt time.Time       `gorm:"autoUpdateTime"`
 }
 
 type Order struct {
@@ -66,8 +67,7 @@ type Employee struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
 	OrgID     uuid.UUID `gorm:"type:uuid;not null"`
 	UserID    uuid.UUID `gorm:"type:uuid;not null"`
-	DocNum    string    `gorm:"not null;unique"`
-	FullName  string    `gorm:"not null;unique"`
+	DocNum    string    `gorm:"unique"`
 	Role      Roles     `gorm:"not null;default:'USER'"`
 	CreatedAt time.Time
 	UpdatedAt time.Time

@@ -1,9 +1,0 @@
-basePath: /
-host: localhost:3000
-info:
-  contact: {}
-  description: Documentación de ejemplo con Fiber y swaggo
-  title: z0-api
-  version: "1.0"
-paths: {}
-swagger: "2.0"
